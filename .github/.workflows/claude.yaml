@@ -1,0 +1,13 @@
+name: Claude Code Action Demo
+
+on: [push]
+
+jobs:
+  run-claude:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Claude Code Action
+        uses: anthropics/claude-code-action@main
+        with:
+          api_key: ${{ secrets.CLAUDE_API_KEY }}
