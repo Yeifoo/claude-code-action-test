@@ -22,8 +22,9 @@ jobs:
 
       - name: Run Claude Code
         uses: anthropics/claude-code-action@v1
+        with:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-4-5-sonnet
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          MODEL: claude-4-5-sonnet
