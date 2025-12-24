@@ -4,12 +4,14 @@ on:
   push:
     branches: [main]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   vault-job:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write # 必须
-      contents: read
+
     env:
       VAULT_ADDR: https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200
       VAULT_NAMESPACE: admin
@@ -17,12 +19,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Vault
+      - name: Install Vault & jq
         run: |
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
-          echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
-            | sudo tee /etc/apt/sources.list.d/hashicorp.list
-          sudo apt update && sudo apt install vault -y
+          sudo apt-get update
+          sudo apt-get install -y vault jq
 
       - name: Get GitHub OIDC token
         run: |
@@ -31,18 +31,16 @@ jobs:
             \"$ACTIONS_ID_TOKEN_REQUEST_URL&audience=vault\" \
             | jq -r .value)" >> $GITHUB_ENV
 
+      - name: Debug token
+        run: |
+          echo "OIDC token length: ${#ACTIONS_ID_TOKEN}"
+
       - name: Login to Vault
-        env:
-          VAULT_ADDR: https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200
-          VAULT_NAMESPACE: admin
         run: |
           vault write auth/jwt-github/login \
             role=github-action-role \
             jwt="$ACTIONS_ID_TOKEN"
 
-      - name: Read secret (example)
-        env:
-          VAULT_ADDR: https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200
-          VAULT_NAMESPACE: admin
+      - name: Verify login
         run: |
-          vault kv get secret/example
+          vault token lookup
