@@ -23,7 +23,7 @@ jobs:
           role: github-action-role
           url: https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200
           namespace: admin
-          audience: vault
+          jwtGithubAudience: vault
 
       - name: Verify login
         run: |
