@@ -8,11 +8,11 @@ jobs:
   vault-job:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
+      id-token: write # 关键
       contents: read
     env:
       VAULT_ADDR: "https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200"
-      VAULT_NAMESPACE: "admin"
+      VAULT_NAMESPACE: "admin" # SaaS Vault 默认 namespace
     steps:
       - uses: actions/checkout@v3
 
@@ -30,3 +30,8 @@ jobs:
         run: |
           SECRET=$(vault kv get -field=password secret/data/my-app)
           echo "Vault secret: $SECRET"
+
+      - name: Use secret
+        run: |
+          echo "Use secret in your application..."
+          # 比如连接数据库或调用 API
