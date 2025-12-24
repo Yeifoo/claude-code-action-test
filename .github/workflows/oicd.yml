@@ -1,24 +1,28 @@
-name: Vault CI Login Test
+name: Vault JWT Example
 
 on:
   push:
     branches: [main]
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
-  test:
+  vault-job:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # 必须
+      contents: read
+    env:
+      VAULT_ADDR: https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200
+      VAULT_NAMESPACE: admin
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Vault CLI
+      - name: Install Vault
         run: |
-          sudo apt-get update
-          sudo apt-get install -y vault jq
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
+            | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update && sudo apt install vault -y
 
       - name: Get GitHub OIDC token
         run: |
