@@ -12,34 +12,17 @@ jobs:
   vault-job:
     runs-on: ubuntu-latest
 
-    env:
-      VAULT_ADDR: https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200
-      VAULT_NAMESPACE: admin
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Vault & jq
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y vault jq
-
-      - name: Get GitHub OIDC token
-        run: |
-          echo "ACTIONS_ID_TOKEN=$(curl -s \
-            -H \"Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN\" \
-            \"$ACTIONS_ID_TOKEN_REQUEST_URL&audience=vault\" \
-            | jq -r .value)" >> $GITHUB_ENV
-
-      - name: Debug token
-        run: |
-          echo "OIDC token length: ${#ACTIONS_ID_TOKEN}"
-
       - name: Login to Vault
-        run: |
-          vault write auth/jwt-github/login \
-            role=github-action-role \
-            jwt="$ACTIONS_ID_TOKEN"
+        uses: hashicorp/vault-action@v2
+        with:
+          method: jwt
+          path: jwt-github
+          role: github-action-role
+          url: https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200
+          namespace: admin
 
       - name: Verify login
         run: |
