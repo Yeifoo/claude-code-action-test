@@ -1,0 +1,46 @@
+name: Vault OIDC Example
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  vault-job:
+    runs-on: ubuntu-latest
+
+    # 关键权限，必须开启 id-token
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      # 1️⃣ 拉取代码
+      - uses: actions/checkout@v3
+
+      # 2️⃣ 安装 Vault CLI（如果 runner 没有）
+      - name: Install Vault CLI
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update && sudo apt install vault -y
+
+      # 3️⃣ Vault OIDC 登录
+      - name: Authenticate with Vault via OIDC
+        env:
+          VAULT_ADDR: "https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200" # 替换为你的 Vault 地址
+        run: |
+          vault login -method=oidc role=github-action-role
+
+      # 4️⃣ 从 Vault 获取机密
+      - name: Read secret from Vault
+        env:
+          VAULT_ADDR: "https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200"
+        run: |
+          SECRET=$(vault kv get -field=password secret/data/my-app)
+          echo "Vault secret: $SECRET"
+
+      # 5️⃣ 使用机密（示例）
+      - name: Use secret
+        run: |
+          echo "Using secret in workflow..."
+          # 这里可以执行你的应用逻辑，例如连接数据库、API 调用等
