@@ -40,8 +40,8 @@ jobs:
           namespace: admin
           url: https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200
           secrets: |
-            kv/anthropic_api_key anthropic_api_key | ANTHROPIC_API_KEY
-            kv/anthropic_base_url anthropic_base_url | ANTHROPIC_BASE_URL
+            kv/data/anthropic_api_key anthropic_api_key | ANTHROPIC_API_KEY
+            kv/data/anthropic_base_url anthropic_base_url | ANTHROPIC_BASE_URL
 
       # --- Step 3: Run Claude PR review ---
       - name: PR Review with Progress Tracking
