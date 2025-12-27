@@ -35,14 +35,11 @@ jobs:
       - name: Get Vault secrets
         uses: hashicorp/vault-action@v2
         with:
-          method: token
-          token: ${{ env.VAULT_TOKEN }}
-          path: kv # KV mount 名称
           namespace: admin
           url: https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200
           secrets: |
-            data/anthropic_api_key anthropic_api_key | ANTHROPIC_API_KEY;
-            data/anthropic_base_url anthropic_base_url | ANTHROPIC_BASE_URL
+            kv/data/anthropic_api_key anthropic_api_key | ANTHROPIC_API_KEY;
+            kv/data/anthropic_base_url anthropic_base_url | ANTHROPIC_BASE_URL
 
       # --- Step 3: Run Claude PR review ---
       - name: PR Review with Progress Tracking
