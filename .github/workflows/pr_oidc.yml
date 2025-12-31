@@ -30,18 +30,11 @@ jobs:
           namespace: admin # Vault namespace
           jwtGithubAudience: vault # 必须和 Vault role bound_audiences 一致
           exportToken: true # 导出 VAULT_TOKEN 给后续 steps
+          secrets: |
+            kv/data/anthropic_api_key anthropic_api_key | ANTHROPIC_API_KEY;
+            kv/data/anthropic_base_url anthropic_base_url | ANTHROPIC_BASE_URL
 
       # --- Step 2: Retrieve secrets from Vault ---
-      - name: Get Vault secrets
-        uses: hashicorp/vault-action@v2
-        with:
-          method: token
-          path: kv # KV mount 名称
-          namespace: admin
-          url: https://cca-public-vault-85315103.c755c6be.z1.hashicorp.cloud:8200
-          secrets: |
-            kv/data/anthropic_api_key value | ANTHROPIC_API_KEY
-            kv/data/openai_base_url value | ANTHROPIC_BASE_URL
 
       # --- Step 3: Run Claude PR review ---
       - name: PR Review with Progress Tracking
