@@ -1,3 +1,5 @@
 # claude-code-action-test
 
-111
+## OIDC Authentication
+
+This repository uses GitHub OIDC to authenticate with HashiCorp Vault for secure secret management.
