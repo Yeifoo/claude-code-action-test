@@ -34,9 +34,7 @@ jobs:
             kv/data/anthropic_api_key anthropic_api_key | ANTHROPIC_API_KEY;
             kv/data/anthropic_base_url anthropic_base_url | ANTHROPIC_BASE_URL
 
-      # --- Step 2: Retrieve secrets from Vault ---
-
-      # --- Step 3: Run Claude PR review ---
+      # --- Step 2: Run Claude PR review ---
       - name: PR Review with Progress Tracking
         uses: anthropics/claude-code-action@v1
         with:
