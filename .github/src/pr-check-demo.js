@@ -101,18 +101,5 @@ module.exports = {
   generateCheckReport
 };
 
-// 示例使用
-if (require.main === module) {
-  const examplePR = {
-    number: 123,
-    title: 'feat(api): 添加用户认证功能',
-    additions: 150,
-    deletions: 30,
-    files: ['src/auth.js', 'src/utils.js', 'README.md']
-  };
-  
-  const report = generateCheckReport(examplePR);
-  console.log('PR 检查报告:');
-  console.log(JSON.stringify(report, null, 2));
-}
+
 
