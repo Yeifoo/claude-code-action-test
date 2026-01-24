@@ -61,35 +61,113 @@ function validateFileTypes(files) {
   };
 }
 
-// 示例4: 生成 PR 检查报告
+// 示例4: 检查 PR 描述
+function validatePRDescription(description) {
+  const minLength = 20;
+
+  if (!description || description.trim().length === 0) {
+    return { valid: false, message: 'PR 描述不能为空' };
+  }
+
+  if (description.trim().length < minLength) {
+    return {
+      valid: false,
+      message: `PR 描述太短，至少需要 ${minLength} 个字符`
+    };
+  }
+
+  // 检查是否包含必要的部分
+  const hasWhatChanged = /##?\s*(what|变更|改动)/i.test(description);
+  const hasWhy = /##?\s*(why|原因|目的)/i.test(description);
+
+  if (!hasWhatChanged && !hasWhy) {
+    return {
+      valid: true,
+      message: 'PR 描述有效，但建议添加"变更内容"和"变更原因"部分'
+    };
+  }
+
+  return { valid: true, message: 'PR 描述格式良好' };
+}
+
+// 示例5: 检查是否有测试文件
+function checkTestCoverage(files) {
+  const sourceFiles = files.filter(f =>
+    (f.endsWith('.js') || f.endsWith('.ts')) &&
+    !f.includes('.test.') &&
+    !f.includes('.spec.')
+  );
+
+  const testFiles = files.filter(f =>
+    f.includes('.test.') || f.includes('.spec.')
+  );
+
+  if (sourceFiles.length > 0 && testFiles.length === 0) {
+    return {
+      status: 'warning',
+      message: '检测到源代码变更但没有对应的测试文件，建议添加测试'
+    };
+  }
+
+  return {
+    status: 'success',
+    message: testFiles.length > 0
+      ? `包含 ${testFiles.length} 个测试文件`
+      : '无需测试文件'
+  };
+}
+
+// 示例6: 生成 PR 检查报告
 function generateCheckReport(prData) {
   const report = {
     timestamp: new Date().toISOString(),
     prNumber: prData.number,
+    author: prData.author || 'unknown',
     checks: []
   };
-  
+
   // 标题检查
   const titleCheck = validatePRTitle(prData.title);
   report.checks.push({
     name: 'Title Format',
     ...titleCheck
   });
-  
+
+  // 描述检查
+  if (prData.description !== undefined) {
+    const descCheck = validatePRDescription(prData.description);
+    report.checks.push({
+      name: 'Description',
+      ...descCheck
+    });
+  }
+
   // 变更行数检查
   const linesCheck = checkChangedLines(prData.additions, prData.deletions);
   report.checks.push({
     name: 'Changed Lines',
     ...linesCheck
   });
-  
+
   // 文件类型检查
   const filesCheck = validateFileTypes(prData.files);
   report.checks.push({
     name: 'File Types',
     ...filesCheck
   });
-  
+
+  // 测试覆盖检查
+  const testCheck = checkTestCoverage(prData.files);
+  report.checks.push({
+    name: 'Test Coverage',
+    ...testCheck
+  });
+
+  // 计算总体状态
+  report.overallStatus = report.checks.every(c =>
+    c.valid !== false && c.status !== 'error'
+  ) ? 'passed' : 'needs_attention';
+
   return report;
 }
 
@@ -98,6 +176,8 @@ module.exports = {
   validatePRTitle,
   checkChangedLines,
   validateFileTypes,
+  validatePRDescription,
+  checkTestCoverage,
   generateCheckReport
 };
 
