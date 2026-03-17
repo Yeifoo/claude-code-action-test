@@ -26,6 +26,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           show_full_output: true
         env:
+          model: nvidia/nemotron-3-super-120b-a12b:free
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
           
